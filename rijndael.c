@@ -1,4 +1,5 @@
 /*
+ * C20361521 - Twila Habab
  * TODO: Add your name and student number here, along with
  *       a brief description of this code.
  */
@@ -6,9 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// TODO: Any other files you need to include should go here
-
 #include "rijndael.h"
+#include "substitution.h"
 
 size_t block_size_to_bytes(aes_block_size_t block_size) {
   switch (block_size) {
@@ -56,7 +56,17 @@ char *message(char n) {
  * Operations used when encrypting a block
  */
 void sub_bytes(unsigned char *block, aes_block_size_t block_size) {
-  // TODO: Implement me!
+  for (i = 0; i < 4; i++;) {
+    for (j = 0; j < 4; j++;) {
+
+      // GEMINI RESPONSE
+      // Need to calculate the 1D index for the 4x4 grid
+      int index = (i * 4) + j
+
+
+      block[index] = s_box[block[index]]
+    }
+  }
 }
 
 void shift_rows(unsigned char *block, aes_block_size_t block_size) {

@@ -1,4 +1,5 @@
 /*
+ * C20361521 - Twila Habab
  * TODO: Add your name and student number here, along with
  *       a brief description of this code.
  */
@@ -25,6 +26,7 @@ unsigned char *aes_encrypt_block(
     unsigned char *plaintext,
     unsigned char *key,
     aes_block_size_t block_size);
+    
 unsigned char *aes_decrypt_block(
     unsigned char *ciphertext,
     unsigned char *key,
