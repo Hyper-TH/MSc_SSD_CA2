@@ -63,14 +63,18 @@ void sub_bytes(unsigned char *block, aes_block_size_t block_size) {
       // Need to calculate the 1D index for the 4x4 grid
       int index = (i * 4) + j
 
-
       block[index] = s_box[block[index]]
     }
   }
 }
 
 void shift_rows(unsigned char *block, aes_block_size_t block_size) {
-  // TODO: Implement me!
+    for (i = 0; i < 4; i++;) {
+      for (j = 0; j < 4; j++;) {
+        int index = (i * 4) + j
+        block[index] = inv_s_box[block[index]]
+      }
+  }
 }
 
 void mix_columns(unsigned char *block, aes_block_size_t block_size) {
