@@ -56,8 +56,8 @@ char *message(char n) {
  * Operations used when encrypting a block
  */
 void sub_bytes(unsigned char *block, aes_block_size_t block_size) {
-  for (i = 0; i < 4; i++) {
-    for (j = 0; j < 4; j++) {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
 
       // GEMINI RESPONSE
       // Need to calculate the 1D index for the 4x4 grid
@@ -69,10 +69,10 @@ void sub_bytes(unsigned char *block, aes_block_size_t block_size) {
 }
 
 void shift_rows(unsigned char *block, aes_block_size_t block_size) {
-    for (i = 0; i < 4; i++) {
-      for (j = 0; j < 4; j++) {
-        int index = (i * 4) + j
-        block[index] = inv_s_box[block[index]]
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
+        int index = (i * 4) + j;
+        block[index] = inv_s_box[block[index]];
       }
   }
 }
@@ -84,11 +84,11 @@ unsigned char xtime(unsigned char a) {
 
 void mix_columns(unsigned char *block, aes_block_size_t block_size) {
   unsigned char t = block[0] ^ block[1] ^ block[2] ^ block[3];
-  unsigned char u = a[0];
+  unsigned char u = block[0];
 
-  block[0] ^= t ^ xtime(block[0] ^ a[1]);
-  block[1] ^= t ^ xtime(block[1] ^ a[2]);
-  block[2] ^= t ^ xtime(block[2] ^ a[3]);
+  block[0] ^= t ^ xtime(block[0] ^ block[1]);
+  block[1] ^= t ^ xtime(block[1] ^ block[2]);
+  block[2] ^= t ^ xtime(block[2] ^ block[3]);
   block[3] ^= t ^ xtime(block[3] ^ u);
 }
 
@@ -97,10 +97,10 @@ void mix_columns(unsigned char *block, aes_block_size_t block_size) {
  */
 void invert_sub_bytes(unsigned char *block, aes_block_size_t block_size) {
   // TODO: Implement me!
-    for (i = 0; i < 4; i++) {
-    for (j = 0; j < 4; j++) {
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
 
-      int index = (i * 4) + j
+      int index = (i * 4) + j;
 
       block[index] = inv_s_box[block[index]]
     }
@@ -109,6 +109,7 @@ void invert_sub_bytes(unsigned char *block, aes_block_size_t block_size) {
 
 void invert_shift_rows(unsigned char *block, aes_block_size_t block_size) {
   // TODO: Implement me!
+
 }
 
 void invert_mix_columns(unsigned char *block, aes_block_size_t block_size) {
