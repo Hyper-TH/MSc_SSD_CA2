@@ -61,7 +61,7 @@ void sub_bytes(unsigned char *block, aes_block_size_t block_size) {
 
       // GEMINI RESPONSE
       // Need to calculate the 1D index for the 4x4 grid
-      int index = (i * 4) + j
+      int index = (i * 4) + j;
 
       block[index] = s_box[block[index]];
     }
