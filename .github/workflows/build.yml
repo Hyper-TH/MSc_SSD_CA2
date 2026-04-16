@@ -1,4 +1,4 @@
-name: Build the project
+name: Build the project and run tests
 on: push
 jobs:
   build:
@@ -6,7 +6,15 @@ jobs:
     steps:
       - name: Clone the repo
         uses: actions/checkout@v4
-      - name: Build the code
+        with:
+          submodules: recursive   
+
+      - name: Install Dependencies
         run: |
           sudo apt install -y build-essential python-is-python3
-          make
+
+      - name: Build the Project
+        run: make
+
+      - name: Run Unit Tests
+        run: python3 tests.py

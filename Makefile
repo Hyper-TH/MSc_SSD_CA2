@@ -6,7 +6,7 @@ all: main rijndael.so
 main: rijndael.o main.c
 	$(CC) -o main main.c rijndael.o
 
-rijndael.o: rijndael.c rijndael.h
+rijndael.o: rijndael.c rijndael.h substitution.h
 	$(CC) -o rijndael.o -fPIC -c rijndael.c
 
 rijndael.so: rijndael.o
