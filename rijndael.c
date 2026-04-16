@@ -63,7 +63,7 @@ void sub_bytes(unsigned char *block, aes_block_size_t block_size) {
       // Need to calculate the 1D index for the 4x4 grid
       int index = (i * 4) + j
 
-      block[index] = s_box[block[index]]
+      block[index] = s_box[block[index]];
     }
   }
 }
@@ -102,7 +102,7 @@ void invert_sub_bytes(unsigned char *block, aes_block_size_t block_size) {
 
       int index = (i * 4) + j;
 
-      block[index] = inv_s_box[block[index]]
+      block[index] = inv_s_box[block[index]];
     }
   }
 }
@@ -155,4 +155,4 @@ unsigned char *aes_decrypt_block(unsigned char *ciphertext,
   unsigned char *output =
       (unsigned char *)malloc(sizeof(unsigned char) * block_size_to_bytes(block_size));
   return output;
-}
+};
