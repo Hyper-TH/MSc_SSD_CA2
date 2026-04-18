@@ -1,7 +1,7 @@
 /*
  * C20361521 - Twila Habab
- * TODO: Add your name and student number here, along with
- *       a brief description of this code.
+ * This file implements the core AES-128 (Rijndael) block cipher operations,
+ * including key expansion, encryption, and decryption for 128-bit blocks.
  */
 
 #include <stdio.h>
@@ -9,6 +9,7 @@
 #include <string.h>
 #include "rijndael.h"
 #include "substitution.h"
+
 
 size_t block_size_to_bytes(aes_block_size_t block_size) {
   switch (block_size) {
@@ -43,7 +44,6 @@ unsigned char block_access(unsigned char *block, size_t row, size_t col, aes_blo
 
   return block[(row * row_len) + col];
 }
-
 char *message(char n) {
   char *output = (char *)malloc(7);
   strcpy(output, "hello");
@@ -52,64 +52,97 @@ char *message(char n) {
   return output;
 }
 
+// STEP 1 - SUB-BYTES
 /*
- * Operations used when encrypting a block
- */
+* Sub bytes uses S-BOX for substitution table
+* The position of the byte in the current state is used
+* as the index from the S-BOX to get the new value of the byte
+*/ 
 void sub_bytes(unsigned char *block, aes_block_size_t block_size) {
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
-
-      // GEMINI RESPONSE
-      // Need to calculate the 1D index for the 4x4 grid
-      int index = (i * 4) + j;
-
-      block[index] = s_box[block[index]];
+      block[i + (j * 4)] = s_box[block[i + (j * 4)]]; // LLM-Assisted for calcuation of the index
     }
   }
 }
 
+/*
+ * shift_rows: Transposition step where the last three rows of the state 
+ * are shifted cyclically to the left.
+ */
+// STEP 2 - SHIFT ROWS
+// Each row (bar the first [0]) is shifted/rotated to the left
+// by a certain number of bytes (1 for row 1, 2 for row 2, 3 for row 3)
 void shift_rows(unsigned char *block, aes_block_size_t block_size) {
-    for (int i = 0; i < 4; i++) {
-      for (int j = 0; j < 4; j++) {
-        int index = (i * 4) + j;
-        block[index] = inv_s_box[block[index]];
-      }
-  }
+unsigned char temp;
+
+    // Row 0: No shift
+
+    // Row 1: Shift left by 1 (Indices: 1, 5, 9, 13)
+    temp = block[1];
+    block[1]  = block[5];
+    block[5]  = block[9];
+    block[9]  = block[13];
+    block[13] = temp;
+
+    // Row 2: Shift left by 2 (Indices: 2, 6, 10, 14)
+    temp = block[2];
+    block[2]  = block[10];
+    block[10] = temp;
+    temp = block[6];
+    block[6]  = block[14];
+    block[14] = temp;
+
+    // Row 3: Shift left by 3 (Indices: 3, 7, 11, 15)
+    temp = block[15];
+    block[15] = block[11];
+    block[11] = block[7];
+    block[7]  = block[3];
+    block[3]  = temp;
 }
 
-// xtime in C
+/*
+ * xtime: Multiplication by {02} in the Galois Field GF(2^8).
+ * This is implemented as a left shift followed by a conditional XOR with 0x1B 
+ * if the most significant bit was set (to keep the result within the field).
+ */
+// LLM-ASSISTED IMPLEMENTATION
 unsigned char xtime(unsigned char a) {
   return (a & 0x80) ? ((a << 1) ^ 0x1B) : (a << 1);
 }
 
+// STEP 3 - MIX COLUMNS
+/*
+* Each column is treated as a polynomial and multiplied by a fixed polynomial.
+*/
+// LLM-ASSISTED IMPLEMENTATION
 void mix_columns(unsigned char *block, aes_block_size_t block_size) {
-  unsigned char t = block[0] ^ block[1] ^ block[2] ^ block[3];
-  unsigned char u = block[0];
+  for (int i = 0; i < 4; i++) {
+    unsigned char *column = block + (i * 4);
+    unsigned char t = column[0] ^ column[1] ^ column[2] ^ column[3];
+    unsigned char u = column[0];
 
-  block[0] ^= t ^ xtime(block[0] ^ block[1]);
-  block[1] ^= t ^ xtime(block[1] ^ block[2]);
-  block[2] ^= t ^ xtime(block[2] ^ block[3]);
-  block[3] ^= t ^ xtime(block[3] ^ u);
+    column[0] ^= t ^ xtime(column[0] ^ column[1]);
+    column[1] ^= t ^ xtime(column[1] ^ column[2]);
+    column[2] ^= t ^ xtime(column[2] ^ column[3]);
+    column[3] ^= t ^ xtime(column[3] ^ u);
+  }
 }
 
 /*
  * Operations used when decrypting a block
+ * invert_sub_bytes: Undoes the S-box substitution using the inverse S-box.
  */
 void invert_sub_bytes(unsigned char *block, aes_block_size_t block_size) {
-  // TODO: Implement me!
     for (int i = 0; i < 4; i++) {
       for (int j = 0; j < 4; j++) {
-
-      int index = (i * 4) + j;
-
-      block[index] = inv_s_box[block[index]];
+        block[i + (j * 4)] = inv_s_box[block[i + (j * 4)]];
     }
   }
 }
 
 void invert_shift_rows(unsigned char *block, aes_block_size_t block_size) {
   // TODO: Implement me!
-
 }
 
 void invert_mix_columns(unsigned char *block, aes_block_size_t block_size) {
