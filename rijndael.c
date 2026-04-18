@@ -66,39 +66,41 @@ void sub_bytes(unsigned char *block, aes_block_size_t block_size) {
   }
 }
 
-/*
- * shift_rows: Transposition step where the last three rows of the state 
- * are shifted cyclically to the left.
- */
 // STEP 2 - SHIFT ROWS
 // Each row (bar the first [0]) is shifted/rotated to the left
 // by a certain number of bytes (1 for row 1, 2 for row 2, 3 for row 3)
 void shift_rows(unsigned char *block, aes_block_size_t block_size) {
-unsigned char temp;
+  unsigned char temp;
+  /*
+  * [0] [4] [8] [12] 
+  * [1] [5] [9] [13]
+  * [2] [6] [10] [14]
+  * [3] [7] [11] [15]
+  */
 
-    // Row 0: No shift
+  // Row 0: No shift
 
-    // Row 1: Shift left by 1 (Indices: 1, 5, 9, 13)
-    temp = block[1];
-    block[1]  = block[5];
-    block[5]  = block[9];
-    block[9]  = block[13];
-    block[13] = temp;
+  // Row 1: Shift left by 1 (Indices: 1, 5, 9, 13)
+  temp = block[1];
+  block[1]  = block[5];
+  block[5]  = block[9];
+  block[9]  = block[13];
+  block[13] = temp;
 
-    // Row 2: Shift left by 2 (Indices: 2, 6, 10, 14)
-    temp = block[2];
-    block[2]  = block[10];
-    block[10] = temp;
-    temp = block[6];
-    block[6]  = block[14];
-    block[14] = temp;
+  // Row 2: Shift left by 2 (Indices: 2, 6, 10, 14)
+  temp = block[2];
+  block[2]  = block[10];
+  block[10] = temp;
+  temp = block[6];
+  block[6]  = block[14];
+  block[14] = temp;
 
-    // Row 3: Shift left by 3 (Indices: 3, 7, 11, 15)
-    temp = block[15];
-    block[15] = block[11];
-    block[11] = block[7];
-    block[7]  = block[3];
-    block[3]  = temp;
+  // Row 3: Shift left by 3 (Indices: 3, 7, 11, 15)
+  temp = block[15];
+  block[15] = block[11];
+  block[11] = block[7];
+  block[7]  = block[3];
+  block[3]  = temp;
 }
 
 /*
@@ -129,8 +131,9 @@ void mix_columns(unsigned char *block, aes_block_size_t block_size) {
   }
 }
 
+
+// OPERATION FOR DECRYPTIONS
 /*
- * Operations used when decrypting a block
  * invert_sub_bytes: Undoes the S-box substitution using the inverse S-box.
  */
 void invert_sub_bytes(unsigned char *block, aes_block_size_t block_size) {
@@ -141,12 +144,53 @@ void invert_sub_bytes(unsigned char *block, aes_block_size_t block_size) {
   }
 }
 
+/*
+ * invert_shift_rows: Undoes the shift rows operation.
+ */
 void invert_shift_rows(unsigned char *block, aes_block_size_t block_size) {
-  // TODO: Implement me!
+  unsigned char temp;
+  /*
+  * [0] [4] [8] [12] 
+  * [1] [5] [9] [13]
+  * [2] [6] [10] [14]
+  * [3] [7] [11] [15]
+  */
+
+  // Row 1: Shift right by 1
+  temp = block[13];
+  block[13] = block[9];
+  block[9]  = block[5];
+  block[5]  = block[1];
+  block[1]  = temp;
+
+  // Row 2: Shift right by 2
+  temp = block[2];
+  block[2]  = block[10];
+  block[10] = temp;
+  temp = block[6];
+  block[6]  = block[14];
+  block[14] = temp;
+
+  // Row 3: Shift right by 3 (same as shift left by 1)
+  temp = block[3];
+  block[3]  = block[7];
+  block[7]  = block[11];
+  block[11] = block[15];
+  block[15] = temp;
 }
 
+/*
+ * invert_mix_columns: Undoes the mix columns operation.
+ */
+// LLM-ASSISTED IMPLEMENTATION
 void invert_mix_columns(unsigned char *block, aes_block_size_t block_size) {
-  // TODO: Implement me!
+  for (int i = 0; i < 4; i++) {
+    unsigned char *column = block + (i * 4);
+    unsigned char u = xtime(xtime(column[0] ^ column[2]));
+    unsigned char v = xtime(xtime(column[1] ^ column[3]));
+    column[0] ^= u; column[1] ^= v; column[2] ^= u; column[3] ^= v;
+  }
+  mix_columns(block, block_size);
 }
 
 /*
