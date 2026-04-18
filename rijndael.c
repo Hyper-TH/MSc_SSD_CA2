@@ -210,8 +210,44 @@ void add_round_key(unsigned char *block,
  * vector, containing the 11 round keys one after the other
  */
 unsigned char *expand_key(unsigned char *cipher_key, aes_block_size_t block_size) {
-  // TODO: Implement me!
-  return 0;
+  unsigned char *expanded_key = (unsigned char *)malloc(176);
+  memcpy(expanded_key, cipher_key, 16);   // First round key is the cipher key
+
+  int bytes_generated = 16;
+  int rcon_iteration = 1;
+  unsigned char temp[4];
+
+  while (bytes_generated < 176) {
+    // Read the last 4 bytes of current key into temp
+    memcpy(temp, expanded_key + bytes_generated - 4, 4);
+
+    // If this is the start of a new round key
+    if (bytes_generated % 16 == 0) {
+      // ROTWORD: Rotate each byte to the left
+      unsigned char t = temp[0];
+      temp[0] = temp[1];
+      temp[1] = temp[2];
+      temp[2] = temp[3];
+      temp[3] = t;
+
+      // SUBWORD: Apply the S-Box
+      temp[0] = s_box[temp[0]];
+      temp[1] = s_box[temp[1]];
+      temp[2] = s_box[temp[2]];
+      temp[3] = s_box[temp[3]];
+
+      // RCON: XOR the first byte with the round constant
+      temp[0] ^= r_con[rcon_iteration];
+      rcon_iteration++;
+    }
+
+    // Generate the next 4 bytes by XORing temp with the word 16 bytes back
+    for (int i = 0; i < 4; i++) {
+      expanded_key[bytes_generated] = expanded_key[bytes_generated - 16] ^ temp[i];
+      bytes_generated++;
+    }
+  }
+  return expanded_key;
 }
 
 /*
