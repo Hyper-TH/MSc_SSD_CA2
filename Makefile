@@ -13,5 +13,4 @@ rijndael.so: rijndael.o
 	$(CC) -o rijndael.so -shared rijndael.o
 
 clean:
-	rm -f *.o *.so
-	rm -f main
+	rm -f *.o *.so *.exe 
