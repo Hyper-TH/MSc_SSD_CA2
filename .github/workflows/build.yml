@@ -16,5 +16,5 @@ jobs:
       - name: Build the Project
         run: make
 
-      # - name: Run Unit Tests
-      #   run: python3 unit_tests.py
+      - name: Run Unit Tests
+        run: python3 unit_tests.py
