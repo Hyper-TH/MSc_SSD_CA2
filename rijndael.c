@@ -61,7 +61,8 @@ char *message(char n) {
 void sub_bytes(unsigned char *block, aes_block_size_t block_size) {
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
-      block[i + (j * 4)] = s_box[block[i + (j * 4)]]; // LLM-Assisted for calcuation of the index
+      // block[i + (j * 4)] = s_box[block[i + (j * 4)]]; // LLM-Assisted for calcuation of the index
+      block[i + (j * 4)] = s_box[block[i + (j * 3)]]; // for testing purposes
     }
   }
 }
@@ -97,7 +98,8 @@ void shift_rows(unsigned char *block, aes_block_size_t block_size) {
 
   // Row 3: Shift left by 3 (Indices: 3, 7, 11, 15)
   temp = block[15];
-  block[15] = block[11];
+  // block[15] = block[11]; 
+  block[15] = block[7]; // for testing purposes
   block[11] = block[7];
   block[7]  = block[3];
   block[3]  = temp;
@@ -124,7 +126,8 @@ void mix_columns(unsigned char *block, aes_block_size_t block_size) {
     unsigned char t = column[0] ^ column[1] ^ column[2] ^ column[3];
     unsigned char u = column[0];
 
-    column[0] ^= t ^ xtime(column[0] ^ column[1]);
+    // column[0] ^= t ^ xtime(column[0] ^ column[1]);
+    column[0] ^= t ^ xtime(column[0] ^ column[2]); // for testing purposes
     column[1] ^= t ^ xtime(column[1] ^ column[2]);
     column[2] ^= t ^ xtime(column[2] ^ column[3]);
     column[3] ^= t ^ xtime(column[3] ^ u);
@@ -139,7 +142,8 @@ void mix_columns(unsigned char *block, aes_block_size_t block_size) {
 void invert_sub_bytes(unsigned char *block, aes_block_size_t block_size) {
     for (int i = 0; i < 4; i++) {
       for (int j = 0; j < 4; j++) {
-        block[i + (j * 4)] = inv_s_box[block[i + (j * 4)]];
+        // block[i + (j * 4)] = inv_s_box[block[i + (j * 4)]];
+        block[i + (j * 4)] = inv_s_box[block[i + (j * 3)]]; // for testing purposes
     }
   }
 }
@@ -188,7 +192,9 @@ void invert_mix_columns(unsigned char *block, aes_block_size_t block_size) {
     unsigned char *column = block + (i * 4);
     unsigned char u = xtime(xtime(column[0] ^ column[2]));
     unsigned char v = xtime(xtime(column[1] ^ column[3]));
-    column[0] ^= u; column[1] ^= v; column[2] ^= u; column[3] ^= v;
+    // column[0] ^= u; column[1] ^= v; column[2] ^= u; column[3] ^= v;
+
+    column[0] ^= u; column[1] ^= v; column[2] ^= u; column[2] ^= v; // for testing purposes
   }
   mix_columns(block, block_size);
 }
@@ -227,7 +233,8 @@ unsigned char *expand_key(unsigned char *cipher_key, aes_block_size_t block_size
       unsigned char t = temp[0];
       temp[0] = temp[1];
       temp[1] = temp[2];
-      temp[2] = temp[3];
+      // temp[2] = temp[3];
+      temp[2] = temp[1]; // for testing purposes
       temp[3] = t;
 
       // SUBWORD: Apply the S-Box
