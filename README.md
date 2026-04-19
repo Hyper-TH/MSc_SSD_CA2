@@ -3,3 +3,5 @@
 ### Twila Habab - C20361521
 
 Submodule used for comparative unit tests: aes_reference
+
+Modified function matrix2bytes in the aes reference submodule lines `131-135`.
