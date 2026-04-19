@@ -171,6 +171,7 @@ if __name__ == "__main__":
     print("\nRunning Glue Tests for AES Encrypt/Decrypt...\n")
     # GEMINI'S NOTE: Lambda is used here to adapt the Python function to the expected signature for the glue test
     results.append(glue_tests("AES Encrypt Block", aes_lib.aes_encrypt_block, lambda p, k: aes_py.AES(k).encrypt_block(p)))
+    results.append(glue_tests("AES Decrypt Block", aes_lib.aes_decrypt_block, lambda p, k: aes_py.AES(k).decrypt_block(p)))
 
     if not all(results):
         print("\n[!] CI Failure: One or more unit tests failed.")
