@@ -266,9 +266,32 @@ unsigned char *expand_key(unsigned char *cipher_key, aes_block_size_t block_size
 unsigned char *aes_encrypt_block(unsigned char *plaintext,
                                  unsigned char *key,
                                  aes_block_size_t block_size) {
-  // TODO: Implement me!
-  unsigned char *output =
-      (unsigned char *)malloc(sizeof(unsigned char) * block_size_to_bytes(block_size));
+  size_t size = block_size_to_bytes(block_size);
+  unsigned char *output = (unsigned char *)malloc(size);
+  memcpy(output, plaintext, size);
+
+  // 1. Get Round Keys
+  unsigned char *round_keys = expand_key(key, block_size);
+  
+  // 2. Initial AddRoundKey
+  add_round_key(output, round_keys, block_size);
+
+  // 3. The 9 rounds of Substitution and Permutations
+  for (int round = 1; round <= 9; round++) {
+    sub_bytes(output, block_size);
+    shift_rows(output, block_size);
+    mix_columns(output, block_size);
+    add_round_key(output, round_keys + (round * 16), block_size);
+  }
+  
+  // 4. Final Round (No MixColumns Operation)
+  sub_bytes(output, block_size);
+  shift_rows(output, block_size);
+  add_round_key(output, round_keys + (10 * 16), block_size);
+
+  // Free the buffer
+  free(round_keys);
+
   return output;
 }
 
