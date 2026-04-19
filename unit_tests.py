@@ -155,23 +155,27 @@ if __name__ == "__main__":
     results = []
 
     print("Running Unit Tests for AES Operations...\n")
-    results.append(encryption_tests("SubBytes", aes_lib.sub_bytes, aes_py.sub_bytes))
-    results.append(encryption_tests("ShiftRows", aes_lib.shift_rows, aes_py.shift_rows))
-    results.append(encryption_tests("MixColumns", aes_lib.mix_columns, aes_py.mix_columns))
-    results.append(encryption_tests("AddRoundKey", aes_lib.add_round_key, aes_py.add_round_key))
+    for _ in range(3):
+        results.append(encryption_tests("SubBytes", aes_lib.sub_bytes, aes_py.sub_bytes))
+        results.append(encryption_tests("ShiftRows", aes_lib.shift_rows, aes_py.shift_rows))
+        results.append(encryption_tests("MixColumns", aes_lib.mix_columns, aes_py.mix_columns))
+        results.append(encryption_tests("AddRoundKey", aes_lib.add_round_key, aes_py.add_round_key))
 
     print("\nRunning Unit Tests for AES Decryption Operations...\n")
-    results.append(decryption_tests("InvSubBytes", aes_lib.invert_sub_bytes, aes_py.inv_sub_bytes))
-    results.append(decryption_tests("InvShiftRows", aes_lib.invert_shift_rows, aes_py.inv_shift_rows))
-    results.append(decryption_tests("InvMixColumns", aes_lib.invert_mix_columns, aes_py.inv_mix_columns))
+    for _ in range(3):
+        results.append(decryption_tests("InvSubBytes", aes_lib.invert_sub_bytes, aes_py.inv_sub_bytes))
+        results.append(decryption_tests("InvShiftRows", aes_lib.invert_shift_rows, aes_py.inv_shift_rows))
+        results.append(decryption_tests("InvMixColumns", aes_lib.invert_mix_columns, aes_py.inv_mix_columns))
 
     print("\nRunning Isolation Test for Key Expansion...\n")
-    results.append(test_key_expansion())
+    for _ in range(3):
+        results.append(test_key_expansion())
 
     print("\nRunning Glue Tests for AES Encrypt/Decrypt...\n")
-    # GEMINI'S NOTE: Lambda is used here to adapt the Python function to the expected signature for the glue test
-    results.append(glue_tests("AES Encrypt Block", aes_lib.aes_encrypt_block, lambda p, k: aes_py.AES(k).encrypt_block(p)))
-    results.append(glue_tests("AES Decrypt Block", aes_lib.aes_decrypt_block, lambda p, k: aes_py.AES(k).decrypt_block(p)))
+    for _ in range(3):
+        # GEMINI'S NOTE: Lambda is used here to adapt the Python function to the expected signature for the glue test
+        results.append(glue_tests("AES Encrypt Block", aes_lib.aes_encrypt_block, lambda p, k: aes_py.AES(k).encrypt_block(p)))
+        results.append(glue_tests("AES Decrypt Block", aes_lib.aes_decrypt_block, lambda p, k: aes_py.AES(k).decrypt_block(p)))
 
     if not all(results):
         print("\n[!] CI Failure: One or more unit tests failed.")
