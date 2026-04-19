@@ -1,3 +1,6 @@
 [submodule "aes"]
 	path = aes
 	url = https://github.com/boppreh/aes
+[submodule "aes_reference"]
+	path = aes_reference
+	url = https://github.com/Hyper-TH/MSc_SSD_Submodule
