@@ -14,7 +14,7 @@ jobs:
           sudo apt install -y build-essential python-is-python3
 
       - name: Build the Project
-        run: make
+        run: make clean all
 
       - name: Run Unit Tests
         run: python3 unit_tests.py
