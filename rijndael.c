@@ -298,8 +298,30 @@ unsigned char *aes_encrypt_block(unsigned char *plaintext,
 unsigned char *aes_decrypt_block(unsigned char *ciphertext,
                                  unsigned char *key,
                                  aes_block_size_t block_size) {
-  // TODO: Implement me!
-  unsigned char *output =
-      (unsigned char *)malloc(sizeof(unsigned char) * block_size_to_bytes(block_size));
+  size_t size = block_size_to_bytes(block_size);
+  unsigned char *output = (unsigned char *)malloc(size);
+  memcpy(output, ciphertext, size);
+
+  unsigned char *round_keys = expand_key(key, block_size);
+
+  // 1. Initial AddRoundKey (K10)
+  add_round_key(output, round_keys + 160, block_size);
+
+  // 2. The 9 rounds of Inverse Substitution and Permutations
+  for (int round = 9; round >= 1; round--) {
+    invert_shift_rows(output, block_size);
+    invert_sub_bytes(output, block_size);
+    add_round_key(output, round_keys + (round * 16), block_size);
+    invert_mix_columns(output, block_size);
+  }
+
+  // 3. Final Round (No InvertMixColumns Operation)
+  invert_shift_rows(output, block_size);
+  invert_sub_bytes(output, block_size);
+
+  // 4. Add the first round key
+  add_round_key(output, round_keys, block_size);
+
+  free(round_keys);
   return output;
-};
+}
