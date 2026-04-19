@@ -1,7 +1,7 @@
 /*
  * C20361521 - Twila Habab
- * TODO: Add your name and student number here, along with
- *       a brief description of this code.
+ * This file defines the main functions for AES encryption and decryption
+ * as well as declare prototypes for the AES operations
  */
 
 #ifndef RIJNDAEL_H

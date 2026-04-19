@@ -1,3 +1,12 @@
+'''
+C20361521 - Twila Habab
+
+This file contains unit tests for the AES operations implemented in rijndael.c 
+and compares its outputs against the reference Python implementation in the
+submodule aes_reference, based on boppreh's fork of the original AES implementation by Bo Zhu.
+
+The tests utilizes Python's ctypes library to load the shared library and call the C functions directly.
+'''
 import ctypes
 import os
 import sys
@@ -20,7 +29,6 @@ AES_BLOCK_128 = 0
 
 
 # Define the function prototypes from the header file
-# LLM Assisted Autocomplete: TODO = needs revision
 aes_lib.sub_bytes.argtypes = [ctypes.c_void_p, ctypes.c_int]
 aes_lib.shift_rows.argtypes = [ctypes.c_void_p, ctypes.c_int]
 aes_lib.mix_columns.argtypes = [ctypes.c_void_p, ctypes.c_int]
@@ -35,6 +43,8 @@ aes_lib.aes_encrypt_block.restype = ctypes.c_void_p
 aes_lib.aes_decrypt_block.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int]
 aes_lib.aes_decrypt_block.restype = ctypes.c_void_p
 
+# Class to test the individual Substitution and Permutation Operations
+# within the AES encryption, each test generates a random 16 byte input.
 def encryption_tests(operation_name, c_func, py_func):
     print(f"Testing operation: {operation_name}...", end="")
     test_input = os.urandom(16)
@@ -69,6 +79,8 @@ def encryption_tests(operation_name, c_func, py_func):
         print(f"  Py Res: {py_result_bytes.hex()}")
     return passed
 
+# Class to test the individual Substitution and Permutation Operations
+# within the AES decryption, each test generates a random 16 byte input.
 def decryption_tests(operation_name, c_func, py_func):
     print(f"Testing operation: {operation_name}...", end="")
     test_input = os.urandom(16)
@@ -96,6 +108,7 @@ def decryption_tests(operation_name, c_func, py_func):
         print(f"  Py Res: {py_result_bytes.hex()}")
         return False
 
+# Class to test the entire encryption and decryption process
 def glue_tests(operation_name, c_func, py_func):
     print(f"Testing operation: {operation_name}...", end="")
     test_input = os.urandom(16)
@@ -150,7 +163,6 @@ def test_key_expansion():
         print(f"  Py First: {py_expanded[:16].hex()} (Original Key)")
         return False
 
-# TODO: Run three tests for each operation.
 if __name__ == "__main__":
     results = []
 

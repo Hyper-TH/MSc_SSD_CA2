@@ -44,6 +44,7 @@ unsigned char block_access(unsigned char *block, size_t row, size_t col, aes_blo
 
   return block[(row * row_len) + col];
 }
+
 char *message(char n) {
   char *output = (char *)malloc(7);
   strcpy(output, "hello");
@@ -59,11 +60,9 @@ char *message(char n) {
 * as the index from the S-BOX to get the new value of the byte
 */ 
 void sub_bytes(unsigned char *block, aes_block_size_t block_size) {
-  for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < 4; j++) {
-      block[i + (j * 4)] = s_box[block[i + (j * 4)]]; // LLM-Assisted for calcuation of the index
-      // block[i + (j * 4)] = s_box[block[i + (j * 3)]]; // for testing purposes
-    }
+  for (int i = 0; i < 16; i++) {
+    // block[i+1] = s_box[block[i]]; // UNCOMMENT FOR FAIL TEST RESULTS
+    block[i] = s_box[block[i]];
   }
 }
 
@@ -99,7 +98,7 @@ void shift_rows(unsigned char *block, aes_block_size_t block_size) {
   // Row 3: Shift left by 3 (Indices: 3, 7, 11, 15)
   temp = block[15];
   block[15] = block[11]; 
-  // block[15] = block[7]; // for testing purposes
+  // block[15] = block[7]; // UNCOMMENT FOR FAIL TEST RESULTS
   block[11] = block[7];
   block[7]  = block[3];
   block[3]  = temp;
@@ -127,7 +126,7 @@ void mix_columns(unsigned char *block, aes_block_size_t block_size) {
     unsigned char u = column[0];
 
     column[0] ^= t ^ xtime(column[0] ^ column[1]);
-    // column[0] ^= t ^ xtime(column[0] ^ column[2]); // for testing purposes
+    // column[0] ^= t ^ xtime(column[0] ^ column[2]); // UNCOMMENT FOR FAIL TEST RESULTS
     column[1] ^= t ^ xtime(column[1] ^ column[2]);
     column[2] ^= t ^ xtime(column[2] ^ column[3]);
     column[3] ^= t ^ xtime(column[3] ^ u);
@@ -140,11 +139,9 @@ void mix_columns(unsigned char *block, aes_block_size_t block_size) {
  * invert_sub_bytes: Undoes the S-box substitution using the inverse S-box.
  */
 void invert_sub_bytes(unsigned char *block, aes_block_size_t block_size) {
-    for (int i = 0; i < 4; i++) {
-      for (int j = 0; j < 4; j++) {
-        block[i + (j * 4)] = inv_s_box[block[i + (j * 4)]];
-        // block[i + (j * 4)] = inv_s_box[block[i + (j * 3)]]; // for testing purposes
-    }
+  for (int i = 0; i < 16; i++) {
+    // block[i+1] = inv_s_box[block[i]]; // UNCOMMENT FOR FAIL TEST RESULTS
+    block[i] = inv_s_box[block[i]];
   }
 }
 
@@ -178,6 +175,7 @@ void invert_shift_rows(unsigned char *block, aes_block_size_t block_size) {
   // Row 3: Shift right by 3 (same as shift left by 1)
   temp = block[3];
   block[3]  = block[7];
+  // block[15] = block[7]; // UNCOMMENT FOR FAIL TEST RESULTS
   block[7]  = block[11];
   block[11] = block[15];
   block[15] = temp;
@@ -194,7 +192,7 @@ void invert_mix_columns(unsigned char *block, aes_block_size_t block_size) {
     unsigned char v = xtime(xtime(column[1] ^ column[3]));
     column[0] ^= u; column[1] ^= v; column[2] ^= u; column[3] ^= v;
 
-    // column[0] ^= u; column[1] ^= v; column[2] ^= u; column[2] ^= v; // for testing purposes
+    // column[0] ^= u; column[1] ^= v; column[2] ^= u; column[2] ^= v; // UNCOMMENT FOR FAIL TEST RESULTS
   }
   mix_columns(block, block_size);
 }
@@ -205,7 +203,7 @@ void invert_mix_columns(unsigned char *block, aes_block_size_t block_size) {
 void add_round_key(unsigned char *block, 
                    unsigned char *round_key,
                    aes_block_size_t block_size) {
-  for (int i = 0; i < block_size_to_bytes(block_size); i++) {
+  for (int i = 0; i < 16; i++) {
     block[i] ^= round_key[i];
   }
 }
@@ -215,6 +213,7 @@ void add_round_key(unsigned char *block,
  * which is a single 128-bit key, it should return a 176-byte
  * vector, containing the 11 round keys one after the other
  */
+// LLM-ASSISTED IMPLEMENTATION
 unsigned char *expand_key(unsigned char *cipher_key, aes_block_size_t block_size) {
   unsigned char *expanded_key = (unsigned char *)malloc(176);
   memcpy(expanded_key, cipher_key, 16);   // First round key is the cipher key
@@ -234,7 +233,7 @@ unsigned char *expand_key(unsigned char *cipher_key, aes_block_size_t block_size
       temp[0] = temp[1];
       temp[1] = temp[2];
       temp[2] = temp[3];
-      // temp[2] = temp[1]; // for testing purposes
+      // temp[2] = temp[1]; // UNCOMMENT FOR FAIL TEST RESULTS
       temp[3] = t;
 
       // SUBWORD: Apply the S-Box
