@@ -50,17 +50,20 @@ def encryption_tests(operation_name, c_func, py_func):
         c_func(c_block, AES_BLOCK_128)
         py_func(py_block)
     
+    passed = False
     # Extract exactly 16 bytes from the C buffer (raw includes null terminator)
     c_result_bytes = c_block.raw[:16]
     py_result_bytes = aes_py.matrix2bytes(py_block)
 
     if c_result_bytes == py_result_bytes:
         print("PASSED")
+        passed = True
     else:
         print("FAILED")
         print(f"  Input:  {test_input.hex()}")
         print(f"  C Res:  {c_result_bytes.hex()}")
         print(f"  Py Res: {py_result_bytes.hex()}")
+    return passed
 
 def decryption_tests(operation_name, c_func, py_func):
     print(f"Testing operation: {operation_name}...", end="")
@@ -81,20 +84,29 @@ def decryption_tests(operation_name, c_func, py_func):
 
     if c_result_bytes == py_result_bytes:
         print("PASSED")
+        return True
     else:
         print("FAILED")
         print(f"  Input:  {test_input.hex()}")
         print(f"  C Res:  {c_result_bytes.hex()}")
         print(f"  Py Res: {py_result_bytes.hex()}")
+        return False
 
 
 if __name__ == "__main__":
-    encryption_tests("SubBytes", aes_lib.sub_bytes, aes_py.sub_bytes)
-    encryption_tests("ShiftRows", aes_lib.shift_rows, aes_py.shift_rows)
-    encryption_tests("MixColumns", aes_lib.mix_columns, aes_py.mix_columns)
-    encryption_tests("AddRoundKey", aes_lib.add_round_key, aes_py.add_round_key)
+    results = []
+    results.append(encryption_tests("SubBytes", aes_lib.sub_bytes, aes_py.sub_bytes))
+    results.append(encryption_tests("ShiftRows", aes_lib.shift_rows, aes_py.shift_rows))
+    results.append(encryption_tests("MixColumns", aes_lib.mix_columns, aes_py.mix_columns))
+    results.append(encryption_tests("AddRoundKey", aes_lib.add_round_key, aes_py.add_round_key))
 
-    decryption_tests("InvSubBytes", aes_lib.invert_sub_bytes, aes_py.inv_sub_bytes)
-    decryption_tests("InvShiftRows", aes_lib.invert_shift_rows, aes_py.inv_shift_rows)
-    decryption_tests("InvMixColumns", aes_lib.invert_mix_columns, aes_py.inv_mix_columns)
+    results.append(decryption_tests("InvSubBytes", aes_lib.invert_sub_bytes, aes_py.inv_sub_bytes))
+    results.append(decryption_tests("InvShiftRows", aes_lib.invert_shift_rows, aes_py.inv_shift_rows))
+    results.append(decryption_tests("InvMixColumns", aes_lib.invert_mix_columns, aes_py.inv_mix_columns))
+
+    if not all(results):
+        print("\n[!] CI Failure: One or more unit tests failed.")
+        sys.exit(1)
     
+    print("\n[+] All tests passed successfully.")
+    sys.exit(0)
